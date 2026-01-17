@@ -1,4 +1,4 @@
-import { Mirror, ScreenShareDisplay, SpawnPoint, VideoScreen } from '@xrift/world-components'
+import { Mirror, ScreenShareDisplay, SpawnPoint } from '@xrift/world-components'
 import { RigidBody } from '@react-three/rapier'
 import { useRef } from 'react'
 import { Mesh } from 'three'
@@ -7,6 +7,7 @@ import { InteractableButton } from './components/InteractableButton'
 import { RemoteUserHUDs } from './components/RemoteUserHUDs'
 import { RotatingObject } from './components/RotatingObject'
 import { Skybox } from './components/Skybox'
+import { TagBoard } from './components/TagBoard'
 import { COLORS, WORLD_CONFIG } from './constants'
 
 export interface WorldProps {
@@ -162,13 +163,13 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
         size={[4 * scale, 3 * scale]}
       />
 
-      <VideoScreen
+      {/* <VideoScreen
         id='sample-video'
         position={[9.72, 2, 0]}
         rotation={[0, -Math.PI / 2, 0]}
         url='https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
         playing
-      />
+      /> */}
 
       {/* 画面共有ディスプレイ - 左側の壁に配置 */}
       <ScreenShareDisplay
@@ -210,6 +211,19 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
 
       {/* ユーザーの位置情報HUD - useUsers() APIの検証用 */}
       <RemoteUserHUDs />
+
+      {/* タグボード - ユーザーがタグを選択して状態を表示（東の壁に配置） */}
+      <TagBoard
+        title="タグ選択"
+        tags={[
+          { id: 'available', label: '作業中', color: '#00ff00' },
+          { id: 'busy', label: '取り込み中', color: '#ff0000' },
+          { id: 'away', label: '離席中', color: '#ffff00' },
+          { id: 'meeting', label: '会議中', color: '#ff8800' }
+        ]}
+        position={[-4.12, 1.34, -9.62]}
+        rotation={[0, -0.017453292519943077, 0]}
+      />
     </group>
   )
 }
