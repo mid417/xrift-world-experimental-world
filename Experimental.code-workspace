@@ -1,0 +1,18 @@
+{
+  "folders": [
+    {
+      "path": "../xrift-docs",
+      "name": "docs"
+    },
+    {
+      "path": ".",
+      "name": "world"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true
+    }
+  }
+}
