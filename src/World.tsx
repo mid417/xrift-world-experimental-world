@@ -4,7 +4,6 @@ import { useRef } from 'react'
 import { Mesh } from 'three'
 import { Duck } from './components/Duck'
 import { InteractableButton } from './components/InteractableButton'
-import { RemoteUserHUDs } from './components/RemoteUserHUDs'
 import { RotatingObject } from './components/RotatingObject'
 import { Skybox } from './components/Skybox'
 import { TagBoard } from './components/TagBoard'
@@ -209,19 +208,27 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
         useGlobalState={true}
       />
 
-      {/* ユーザーの位置情報HUD - useUsers() APIの検証用 */}
-      <RemoteUserHUDs />
-
       {/* タグボード - ユーザーがタグを選択して状態を表示（東の壁に配置） */}
       <TagBoard
         title="タグ選択"
+        columns={3}
+        storageKey="experimental-world-v1"
         tags={[
-          { id: 'available', label: '作業中', color: '#00ff00' },
-          { id: 'busy', label: '取り込み中', color: '#ff0000' },
-          { id: 'away', label: '離席中', color: '#ffff00' },
-          { id: 'meeting', label: '会議中', color: '#ff8800' }
+          { id: 'want-talk', label: '話したい', color: '#00ff88', column: 0 },
+          { id: 'want-listen', label: '聞きたい', color: '#00aaff', column: 0 },
+          { id: 'want-play', label: '遊びたい', color: '#ff00ff', column: 0 },
+          { id: 'silent', label: '無言', color: '#888888', column: 0 },
+
+          { id: 'beginner', label: '初心者', color: '#ffff00', column: 1 },
+          { id: 'developer', label: '開発者', color: '#ff8800', column: 1 },
+          { id: 'student', label: '学生', color: '#44aaff', column: 1 },
+          { id: 'dont-know', label: 'なんもわからん', color: '#8800ff', column: 1 },
+
+          { id: 'working', label: '作業中', color: '#00ff00', column: 2 },
+          { id: 'away', label: '離席中', color: '#ffaa00', column: 2 },
+          { id: 'cat', label: 'ねこ', color: '#ff88aa', column: 2 }
         ]}
-        position={[-4.12, 1.34, -9.62]}
+        position={[-5.54, 0.87, -9.65]}
         rotation={[0, -0.017453292519943077, 0]}
       />
     </group>
