@@ -2,8 +2,6 @@ import { Mirror, ScreenShareDisplay, SpawnPoint } from '@xrift/world-components'
 import { RigidBody } from '@react-three/rapier'
 import { useRef } from 'react'
 import { Mesh } from 'three'
-import { Duck } from './components/Duck'
-import { InteractableButton } from './components/InteractableButton'
 import { RotatingObject } from './components/RotatingObject'
 import { Skybox } from './components/Skybox'
 import { TagBoard } from './components/TagBoard'
@@ -17,8 +15,6 @@ export interface WorldProps {
 export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 }) => {
   const groundRef = useRef<Mesh>(null)
   const worldSize = WORLD_CONFIG.size * scale
-  const wallHeight = WORLD_CONFIG.wallHeight * scale
-  const wallThickness = WORLD_CONFIG.wallThickness * scale
 
   return (
     <group position={position} scale={scale}>
@@ -26,7 +22,7 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
       <Skybox radius={500} />
 
       {/* プレイヤーのスポーン地点 */}
-      <group position={[0.11, 0, 7.59]} rotation={[0, 0, 0]}>
+      <group position={[0, 0, 0]} rotation={[0, 0, 0]}>
         <SpawnPoint />
       </group>
 
@@ -54,121 +50,12 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
         </mesh>
       </RigidBody>
 
-      {/* 壁1 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[worldSize / 2, wallHeight / 2, 0]} castShadow>
-          <boxGeometry args={[wallThickness, wallHeight, worldSize]} />
-          <meshLambertMaterial color={COLORS.wall} />
-        </mesh>
-      </RigidBody>
-
-      {/* 壁2 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[-worldSize / 2, wallHeight / 2, 0]} castShadow>
-          <boxGeometry args={[wallThickness, wallHeight, worldSize]} />
-          <meshLambertMaterial color={COLORS.wall} />
-        </mesh>
-      </RigidBody>
-
-      {/* 壁3 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[0, wallHeight / 2, worldSize / 2]} castShadow>
-          <boxGeometry args={[worldSize, wallHeight, wallThickness]} />
-          <meshLambertMaterial color={COLORS.wall} />
-        </mesh>
-      </RigidBody>
-
-      {/* 壁4 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[0, wallHeight / 2, -worldSize / 2]} castShadow>
-          <boxGeometry args={[worldSize, wallHeight, wallThickness]} />
-          <meshLambertMaterial color={COLORS.wall} />
-        </mesh>
-      </RigidBody>
-
-      {/* いくつかの装飾オブジェクト */}
-      <RigidBody type="fixed" colliders="hull" restitution={0} friction={0}>
-        <mesh position={[3 * scale, 1 * scale, 3 * scale]} castShadow>
-          <boxGeometry args={[2 * scale, 2 * scale, 2 * scale]} />
-          <meshLambertMaterial color={COLORS.decorations.box} />
-        </mesh>
-      </RigidBody>
-
-      <RigidBody type="fixed" colliders="hull" restitution={0} friction={0}>
-        <mesh position={[-3 * scale, 0.5 * scale, -3 * scale]} castShadow>
-          <cylinderGeometry args={[1 * scale, 1 * scale, 1 * scale]} />
-          <meshLambertMaterial color={COLORS.decorations.cylinder} />
-        </mesh>
-      </RigidBody>
-
-      <RigidBody type="fixed" colliders="ball" restitution={0} friction={0}>
-
-      </RigidBody>
-
-      {/* 0.1mの低い段差 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[-6 * scale, 0.05 * scale, 2 * scale]} castShadow>
-          <boxGeometry args={[2 * scale, 0.1 * scale, 1 * scale]} />
-          <meshLambertMaterial color="#00FF00" />
-        </mesh>
-      </RigidBody>
-
-      {/* 0.2mの段差（設定上限） */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[-6 * scale, 0.1 * scale, 0 * scale]} castShadow>
-          <boxGeometry args={[2 * scale, 0.2 * scale, 1 * scale]} />
-          <meshLambertMaterial color="#FFFF00" />
-        </mesh>
-      </RigidBody>
-
-      {/* 0.3mの少し高い段差 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[-6 * scale, 0.15 * scale, -2 * scale]} castShadow>
-          <boxGeometry args={[2 * scale, 0.3 * scale, 1 * scale]} />
-          <meshLambertMaterial color="#FF8800" />
-        </mesh>
-      </RigidBody>
-
-      {/* 0.5mの高い段差 */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-        <mesh position={[-6 * scale, 0.25 * scale, -4 * scale]} castShadow>
-          <boxGeometry args={[2 * scale, 0.5 * scale, 1 * scale]} />
-          <meshLambertMaterial color="#FF0000" />
-        </mesh>
-      </RigidBody>
-
-      {/* 階段状のオブジェクト */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-
-      </RigidBody>
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-
-      </RigidBody>
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-
-      </RigidBody>
-
-      {/* 狭い隙間テスト */}
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-
-      </RigidBody>
-      <RigidBody type="fixed" colliders="cuboid" restitution={0} friction={0}>
-
-      </RigidBody>
 
       {/* 鏡 - ワールドの中央に配置 */}
       <Mirror
         position={[0, 2.5 * scale, -9.5]}
         size={[4 * scale, 3 * scale]}
       />
-
-      {/* <VideoScreen
-        id='sample-video'
-        position={[9.72, 2, 0]}
-        rotation={[0, -Math.PI / 2, 0]}
-        url='https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-        playing
-      /> */}
 
       {/* 画面共有ディスプレイ - 左側の壁に配置 */}
       <ScreenShareDisplay
@@ -185,51 +72,22 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
         scale={scale}
       />
 
-      {/* Duck 3Dモデル - useXRiftの使用例 */}
-      <RigidBody type="dynamic" colliders="cuboid" restitution={0} friction={0}>
-        <Duck position={[-2, 0.5, 0]} scale={1} />
-      </RigidBody>
-
-      {/* Interactableボタン - クリック可能なオブジェクトの例（ローカルステート） */}
-      <InteractableButton
-        position={[0, 1, -3]}
-        id="sample-button-1"
-        label="ローカル"
-        interactionText="ボタンをクリック"
-        useGlobalState={false}
-      />
-
-      {/* 別のInteractableボタン（グローバルステート - インスタンス全体で同期） */}
-      <InteractableButton
-        position={[2.5, 1, -3]}
-        id="sample-button-2"
-        label="グローバル"
-        interactionText="カウントアップ"
-        useGlobalState={true}
-      />
-
       {/* タグボード - ユーザーがタグを選択して状態を表示（東の壁に配置） */}
       <TagBoard
-        title="タグ選択"
-        columns={3}
-        storageKey="experimental-world-v1"
         tags={[
-          { id: 'want-talk', label: '話したい', color: '#00ff88', column: 0 },
-          { id: 'want-listen', label: '聞きたい', color: '#00aaff', column: 0 },
-          { id: 'want-play', label: '遊びたい', color: '#ff00ff', column: 0 },
-          { id: 'silent', label: '無言', color: '#888888', column: 0 },
+          { column: 0, color: '#2ECC71', id: 'want-talk', label: '話したい' },
+          { column: 0, color: '#3498DB', id: 'want-listen', label: '聞きたい' },
+          { column: 0, color: '#95A5A6', id: 'silent', label: '無言' },
 
-          { id: 'beginner', label: '初心者', color: '#ffff00', column: 1 },
-          { id: 'developer', label: '開発者', color: '#ff8800', column: 1 },
-          { id: 'student', label: '学生', color: '#44aaff', column: 1 },
-          { id: 'dont-know', label: 'なんもわからん', color: '#8800ff', column: 1 },
-
-          { id: 'working', label: '作業中', color: '#00ff00', column: 2 },
-          { id: 'away', label: '離席中', color: '#ffaa00', column: 2 },
-          { id: 'cat', label: 'ねこ', color: '#ff88aa', column: 2 }
+          { column: 1, color: '#8BC34A', id: 'working', label: '作業中' },
+          { column: 1, color: '#BF7B41', id: 'away', label: '離席中' },
+          { column: 1 , color: '#FF9800', id: 'cat', label: 'ねこ' }
         ]}
-        position={[-5.54, 0.87, -9.65]}
-        rotation={[0, -0.017453292519943077, 0]}
+        title="タグ選択"
+        storageKey="simple-office"
+        position={[-2.73, 1.5, -3]}
+        rotation={[0, 0, 0]}
+        scale={scale}
       />
     </group>
   )
