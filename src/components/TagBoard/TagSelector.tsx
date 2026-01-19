@@ -18,29 +18,30 @@ import { useEffect, useState } from 'react'
 import { Text } from '@react-three/drei'
 import { RigidBody } from '@react-three/rapier'
 import { useUsers, useInstanceState, Interactable } from '@xrift/world-components'
-import { DoubleSide } from 'three'
 
-import { type Tag, type TagSelectorProps } from './types'
+import { type TagSelectorProps } from './types'
 import { STORAGE_KEY_PREFIX, VISIBILITY_STORAGE_KEY } from './constants'
 
-export const TagSelector = ({ tags, title, columns, storageKey, position, rotation, scale }: TagSelectorProps) => {
+export const TagSelector = ({ tags, title, storageKey, position, rotation, scale }: TagSelectorProps) => {
   const { localUser } = useUsers()
-  const currentUserId = localUser?.id
-  
   // グローバル同期用の選択タグID（他ユーザーからも見える状態に反映）
   const [, setGlobalSelectedTagIds] = useInstanceState<string[]>(
-    `tag-${storageKey}-${currentUserId}`,
+    `tag-${storageKey}-${localUser?.id}`,
     []
   )
   const [localSelectedTagIds, setLocalSelectedTagIds] = useState<string[]>([])
   const [tagsVisible, setTagsVisible] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
 
+  // tags から平坦化したタグリストを生成
+  const flatTags = tags.flat()
+  const columns = tags.length
+
   // 初期化: localStorage から自分の選択タグおよび表示状態を読み込み
   useEffect(() => {
-    if (!currentUserId || isInitialized) return
+    if (!localUser?.id || isInitialized) return
 
-    const key = `${STORAGE_KEY_PREFIX}${storageKey}-${currentUserId}`
+    const key = `${STORAGE_KEY_PREFIX}${storageKey}-${localUser.id}`
     const saved = localStorage.getItem(key)
     if (saved) {
       try {
@@ -60,19 +61,19 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
     }
 
     setIsInitialized(true)
-  }, [currentUserId, isInitialized, setGlobalSelectedTagIds, storageKey])
+  }, [localUser?.id, isInitialized, setGlobalSelectedTagIds, storageKey])
 
   // 選択状態の保存: 変更があれば localStorage とグローバル状態へ反映
   useEffect(() => {
-    if (!currentUserId || !isInitialized) return
-    const key = `${STORAGE_KEY_PREFIX}${storageKey}-${currentUserId}`
+    if (!localUser?.id || !isInitialized) return
+    const key = `${STORAGE_KEY_PREFIX}${storageKey}-${localUser.id}`
     if (localSelectedTagIds.length > 0) {
       localStorage.setItem(key, JSON.stringify(localSelectedTagIds))
     } else {
       localStorage.removeItem(key)
     }
     setGlobalSelectedTagIds(localSelectedTagIds)
-  }, [localSelectedTagIds, currentUserId, isInitialized, setGlobalSelectedTagIds, storageKey])
+  }, [localSelectedTagIds, localUser?.id, isInitialized, setGlobalSelectedTagIds, storageKey])
 
   // 表示/非表示の保存: トグル変更時に localStorage へ反映
   useEffect(() => {
@@ -91,8 +92,8 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
       }
       // tags配列の順番に合わせてソート
       return newIds.sort((a, b) => {
-        const indexA = tags.findIndex(tag => tag.id === a)
-        const indexB = tags.findIndex(tag => tag.id === b)
+        const indexA = flatTags.findIndex(tag => tag.id === a)
+        const indexB = flatTags.findIndex(tag => tag.id === b)
         return indexA - indexB
       })
     })
@@ -112,12 +113,8 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
     setTagsVisible(prev => !prev)
   }
 
-  // タグを列ごとにグルーピング（列番号が上限を超えていても最終列に詰める）
-  const columnGroups: Tag[][] = Array.from({ length: columns }, () => [])
-  tags.forEach(tag => {
-    const colIndex = Math.min(tag.column, columns - 1)
-    columnGroups[colIndex].push(tag)
-  })
+  // タグを列ごとにグルーピング（すでに tags として列ごとに分かれている）
+  const columnGroups = tags
 
   // レイアウト計算（タグボタンのサイズ・ボードサイズ・列間隔）
   const tagHeight = 0.27 * scale
@@ -147,16 +144,16 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
       {/* 背景ボード（タイトル・コントロールボタンを含む） - 原点を中央に */}
       <mesh position={[0, 0, -0.02]}>
         <planeGeometry args={[boardWidth, boardHeight]} />
-        <meshBasicMaterial color={0x2a2a2a} opacity={1} transparent side={DoubleSide} />
+        <meshBasicMaterial color={0x2a2a2a} opacity={1} transparent />
       </mesh>
       
       <Text
         position={[0, titleY, 0]}
         fontSize={0.2 * scale}
+        color="white"
         anchorX="center"
         anchorY="middle"
         fontWeight="bold"
-        color={0xffffff}
       >
         {title}
       </Text>
@@ -183,9 +180,9 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
           <Text
             position={[0, 0, 0.006 * scale]}
             fontSize={0.15 * scale}
+            color={0xffffff}
             anchorX="center"
             anchorY="middle"
-            color={0xffffff}
           >
             全削除
           </Text>
@@ -212,9 +209,9 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
           <Text
             position={[0, 0, 0.006 * scale]}
             fontSize={0.15 * scale}
+            color={0xffffff}
             anchorX="center"
             anchorY="middle"
-            color={0xffffff}
           >
             {tagsVisible ? "非表示" : "表示"}
           </Text>
@@ -251,9 +248,9 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
                   <Text
                     position={[0, 0, 0.01 * scale]}
                     fontSize={0.15 * scale}
+                    color={0xffffff}
                     anchorX="center"
                     anchorY="middle"
-                    color={0xffffff}
                   >
                     {tag.label}
                   </Text>
@@ -262,9 +259,9 @@ export const TagSelector = ({ tags, title, columns, storageKey, position, rotati
                     <Text
                       position={[-0.58 * scale, -0.02 * scale, 0.012 * scale]}
                       fontSize={0.2 * scale}
+                      color={tag.color}
                       anchorX="center"
                       anchorY="middle"
-                      color={tag.color}
                     >
                       ✓
                     </Text>

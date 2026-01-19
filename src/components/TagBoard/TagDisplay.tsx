@@ -27,23 +27,26 @@ export const TagDisplay = ({ userId, getMovement, tags, visible, storageKey }: T
     []
   )
 
+  // tags から平坦化されたタグリストを生成
+  const flatTags = tags.flat()
+
   // フレーム毎に位置を更新: ユーザーの頭上 +1.4 に追従
   useFrame(() => {
-    // ※ 条件チェックは useFrame 外で済ませているため、ここでは常に実行
+    if (!userId) return
     const movement = getMovement(userId)
-    if (movement && groupRef.current) {
-      groupRef.current.position.set(
-        movement.position.x,
-        movement.position.y + 1.4,
-        movement.position.z
-      )
-    }
+    if (!movement || !groupRef.current) return
+
+    groupRef.current.position.set(
+      movement.position.x,
+      movement.position.y + 1.4,
+      movement.position.z
+    )
   })
 
   // 重複を排除して選択済みタグを特定
-  const uniqueTagIds = Array.from(new Set(selectedTagIds))
+  const uniqueTagIds = [...new Set(selectedTagIds)]
   const selectedTags = uniqueTagIds
-    .map(id => tags.find(tag => tag.id === id))
+    .map(id => flatTags.find(tag => tag.id === id))
     .filter((tag): tag is Tag => tag !== undefined)
 
   // タグが無い場合、または非表示の場合は何も描画しない
@@ -52,10 +55,20 @@ export const TagDisplay = ({ userId, getMovement, tags, visible, storageKey }: T
   // 選択済みタグを列ごとにマッピング
   const columnMap = new Map<number, Tag[]>()
   selectedTags.forEach(tag => {
-    if (!columnMap.has(tag.column)) {
-      columnMap.set(tag.column, [])
+    // tags から列番号を特定
+    let columnIndex = -1
+    for (let i = 0; i < tags.length; i++) {
+      if (tags[i].some(t => t.id === tag.id)) {
+        columnIndex = i
+        break
+      }
     }
-    columnMap.get(tag.column)!.push(tag)
+    if (columnIndex === -1) return // 見つからない場合はスキップ
+    
+    if (!columnMap.has(columnIndex)) {
+      columnMap.set(columnIndex, [])
+    }
+    columnMap.get(columnIndex)!.push(tag)
   })
 
   // アクティブな列のみを取得してソート
@@ -64,8 +77,10 @@ export const TagDisplay = ({ userId, getMovement, tags, visible, storageKey }: T
   // レイアウト計算
   const tagHeight = 0.16
   const tagWidth = 0.8
+  const tagSpacing = 0
   const columnSpacing = tagWidth
-  const maxRows = Math.max(...activeColumns.map(([, t]) => t.length), 1)
+
+  const maxRows = Math.max(...activeColumns.map(([, t]) => t.length))
   const totalWidth = activeColumns.length * tagWidth
 
   return (
@@ -87,22 +102,22 @@ export const TagDisplay = ({ userId, getMovement, tags, visible, storageKey }: T
               <group key={columnIndex} position={[xPos, 0, 0]}>
                 {/* 各列内のタグを上から下へ積む */}
                 {columnTags.map((tag, rowIndex) => {
-                  const yOffset = -rowIndex * tagHeight
+                  const yOffset = -rowIndex * (tagHeight + tagSpacing)
                   
                   return (
                     <group key={tag.id} position={[0, yOffset, 0]}>
                       {/* タグボックス */}
                       <mesh position={[0, 0, -0.01]}>
                         <planeGeometry args={[tagWidth, tagHeight]} />
-                        <meshBasicMaterial color={tag.color} opacity={0.6} transparent side={DoubleSide} />
+                        <meshBasicMaterial color={tag.color} opacity={0.6} transparent  side={DoubleSide}/>
                       </mesh>
                       {/* タグラベルテキスト */}
                       <Text
                         position={[0, 0, 0]}
                         fontSize={0.08}
+                        color={0xffffff}
                         anchorX="center"
                         anchorY="middle"
-                        color={0xffffff}
                       >
                         {tag.label}
                       </Text>

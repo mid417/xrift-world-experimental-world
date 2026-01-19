@@ -53,7 +53,7 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
 
       {/* 鏡 - ワールドの中央に配置 */}
       <Mirror
-        position={[0, 2.5 * scale, -9.5]}
+        position={[0, 1.5 * scale, -9.5]}
         size={[4 * scale, 3 * scale]}
       />
 
@@ -75,16 +75,17 @@ export const World: React.FC<WorldProps> = ({ position = [0, 0, 0], scale = 1 })
       {/* タグボード - ユーザーがタグを選択して状態を表示（東の壁に配置） */}
       <TagBoard
         tags={[
-          { column: 0, color: '#2ECC71', id: 'want-talk', label: '話したい' },
-          { column: 0, color: '#3498DB', id: 'want-listen', label: '聞きたい' },
-          { column: 0, color: '#95A5A6', id: 'silent', label: '無言' },
-
-          { column: 1, color: '#8BC34A', id: 'working', label: '作業中' },
-          { column: 1, color: '#BF7B41', id: 'away', label: '離席中' },
-          { column: 1 , color: '#FF9800', id: 'cat', label: 'ねこ' }
+          [
+            { color: '#8BC34A', id: 'working'    , label: '作業中' },
+            { color: '#BF7B41', id: 'away'       , label: '離席中' },
+            { color: '#95A5A6', id: 'silent'     , label: '無言' },
+          ],
+          [
+            { color: '#FF9800', id: 'cat'        , label: 'ねこ' },
+          ],
         ]}
         title="タグ選択"
-        storageKey="simple-office"
+        storageKey="tommyuh-experimental-world"
         position={[-2.73, 1.5, -3]}
         rotation={[0, 0, 0]}
         scale={scale}
